@@ -76,11 +76,24 @@ async def generate_final_scenario(update: Update, context: ContextTypes.DEFAULT_
     try:
         user_choices = context.user_data
         prompt = f"""
-        شما یک سناریونویس حرفه‌ای هستید. با توجه به اطلاعات زیر، یک سناریوی کامل بنویس:
-        - برند: {user_choices.get('brand')} - موضوع: {user_choices.get('topic')}
-        - لحن: {user_choices.get('tone')} - هدف: {user_choices.get('goal')}
-        - سبک: {user_choices.get('style')} - قالب: {user_choices.get('platform')}
-        خروجی شامل: قلاب، بدنه سناریو، کپشن، CTA و هشتگ‌ها باشد.
+        شما یک سناریونویس حرفه‌ای و خلاق در حوزه شبکه‌های اجتماعی هستید. با توجه به اطلاعات زیر، یک سناریوی کامل و جذاب بنویس:
+
+        - برند و محصول: {user_choices.get('brand')}
+        - موضوع محتوا: {user_choices.get('topic')}
+        - لحن برند: {user_choices.get('tone')}
+        - هدف از محتوا: {user_choices.get('goal')}
+        - سبک سناریو: {user_choices.get('style')}
+        - قالب انتشار: {user_choices.get('platform')}
+
+        لطفاً خروجی شامل این بخش‌ها باشد:
+        1.  **عنوان/قلاب جذاب (Hook):** چند ایده برای شروع طوفانی.
+        2.  **بدنه سناریو:** توضیحات گام به گام بصری و متنی.
+        3.  **کپشن پیشنهادی:** یک کپشن کامل و بهینه شده.
+        4.  **فراخوان به اقدام (CTA):** یک جمله واضح برای تشویق کاربر.
+        5.  **هشتگ‌ها:** مجموعه‌ای از هشتگ‌های مرتبط.
+        6. حتما به سبک سناریو درخواست شده دقت کن و مثل یک متخصص ماهر نویسندگی که به جدید ترین و خلاقانه ترین مهارت های سناریو نویسی مسلط هست سناریو رو تولید کن.
+        از ایموجی ها برای زیبا تر و مرتب تر شدن متن استفاده کن
+        در نهایت هم بنویس "ارائه شده توسط تیم سوشال مدیا سبز"
         """
         genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
         model = genai.GenerativeModel("gemini-1.5-flash")
@@ -98,7 +111,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await start(update, context)
     return ConversationHandler.END
 
-# **نکته مهم:** نام متغیر زیر برای هماهنگی با فایل main.py صحیح است.
+# تعریف ConversationHandler اصلی
 main_conv_handler = ConversationHandler(
     entry_points=[CommandHandler("start", start)],
     states={
@@ -114,7 +127,7 @@ main_conv_handler = ConversationHandler(
         PLATFORM: [MessageHandler(filters.TEXT & ~filters.COMMAND, generate_final_scenario)],
         ASKING_TREND_CATEGORY: [
             MessageHandler(filters.Regex("^(ویدیو های دیالوگی|ویدیو های مینیمال بدون چهره|ایده های فان)$"), send_videos_by_category),
-            MessageHandler(filters.Regex("^ بازگشت به منوی اصلی 🔙$"), back_to_main_menu),
+            MessageHandler(filters.Regex("^بازگشت به منوی اصلی 🔙$"), back_to_main_menu), # <-- رفع باگ: فاصله اضافی حذف شد
         ],
     },
     fallbacks=[CommandHandler("cancel", cancel)],
