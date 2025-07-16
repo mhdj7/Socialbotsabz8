@@ -10,12 +10,12 @@ logger = logging.getLogger(__name__)
 # >> شناسه‌های ویدیوهای خود را در اینجا وارد کنید <<
 TREND_VIDEOS = {
     "ویدیو های دیالوگی": [
-        "FILE_ID_DIALOGUE_1", 
-        "FILE_ID_DIALOGUE_2"
+        "BAACAgQAAxkBAAEB2J9od_3-jAh95gHAK-a5oJTG9YWsDQACehsAApUowVNJqrNjQld6AjYE", 
+       
     ],
     "ویدیو های مینیمال بدون چهره": [
-        "FILE_ID_MINIMAL_1",
-        "FILE_ID_MINIMAL_2"
+        "BAACAgQAAxkBAAEB2J9od_3-jAh95gHAK-a5oJTG9YWsDQACehsAApUowVNJqrNjQld6AjYE",
+        "BAACAgQAAxkBAAEB2J9od_3-jAh95gHAK-a5oJTG9YWsDQACehsAApUowVNJqrNjQld6AjYE"
     ],
     "ایده های فان": [
         "FILE_ID_FUN_1",
@@ -25,7 +25,7 @@ TREND_VIDEOS = {
 # =================================================================
 
 # تعریف مراحل مکالمه ترند
-ASKING_TREND_CATEGORY = range(10, 11) # از یک رنج جدید استفاده میکنیم تا با قبلی تداخل نداشته باشد
+ASKING_TREND_CATEGORY = range(10, 11)
 
 async def ask_trend_category(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """پس از کلیک روی "چی ترنده؟"، دسته‌بندی‌ها را نمایش می‌دهد."""
@@ -33,7 +33,7 @@ async def ask_trend_category(update: Update, context: ContextTypes.DEFAULT_TYPE)
         ["ویدیو های دیالوگی"],
         ["ویدیو های مینیمال بدون چهره"],
         ["ایده های فان"],
-        [" بازگشت به منوی اصلی 🔙"]
+        ["بازگشت به منوی اصلی 🔙"] # <-- رفع باگ: فاصله اضافی حذف شد
     ]
     await update.message.reply_text(
         "بسیار خب! کدام دسته از ایده‌های ترند را می‌خواهی ببینی؟",
@@ -42,7 +42,10 @@ async def ask_trend_category(update: Update, context: ContextTypes.DEFAULT_TYPE)
     return ASKING_TREND_CATEGORY
 
 async def send_videos_by_category(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """ویدیوهای مربوط به دسته انتخاب شده را ارسال می‌کند."""
+    """ویدیوهای مربوط به دسته انتخاب شده را ارسال می‌کند و به منوی اصلی برمیگردد."""
+    # وارد کردن محلی برای جلوگیری از خطای وابستگی چرخه‌ای
+    from .scenario_handler import start
+
     category = update.message.text
     video_ids = TREND_VIDEOS.get(category)
 
@@ -59,5 +62,6 @@ async def send_videos_by_category(update: Update, context: ContextTypes.DEFAULT_
             logger.error(f"Could not send video with id {video_id}. Error: {e}")
             await update.message.reply_text(f"متاسفانه در ارسال یکی از ویدیوها مشکلی پیش آمد.")
 
-    # برای بازگشت به منوی اصلی، مکالمه را پایان میدهیم
+    # رفع نقص: پس از اتمام کار، کاربر را به منوی اصلی برمیگردانیم
+    await start(update, context)
     return ConversationHandler.END
