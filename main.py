@@ -20,12 +20,13 @@ TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 WEBHOOK_URL = os.environ.get('WEBHOOK_URL')
 
-# تابع برای دستور /start
+# تابع برای دستور /start (با پیام جدید برای تایید)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     await update.message.reply_html(
         f"سلام {user.mention_html()}! 👋\n\n"
-        "من یک بات همیشه فعال هستم و آماده‌ام تا برایت سناریوهای خلاقانه بنویسم.\n"
+        "✅ این پیام از طرف نسخه نهایی و همیشه فعال شماست که روی Render اجرا می‌شود.\n\n"
+        "من آماده‌ام تا برایت سناریوهای خلاقانه بنویسم:\n"
         "/scenario موضوع مورد نظر"
     )
 
