@@ -3,10 +3,10 @@ import os
 import logging
 from telegram.ext import Application
 
-# وارد کردن handler اصلی از فایل دیگر
+# **نکته مهم:** مطمئن شوید که نام وارد شده در اینجا (main_conv_handler)
+# دقیقاً با نام تعریف شده در فایل scenario_handler.py یکسان است.
 from handlers.scenario_handler import main_conv_handler
 
-# ... (بقیه کد main.py بدون تغییر باقی میماند) ...
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
@@ -17,7 +17,6 @@ WEBHOOK_URL = os.environ.get("RENDER_EXTERNAL_URL")
 
 def main() -> None:
     application = Application.builder().token(TELEGRAM_TOKEN).build()
-    # اضافه کردن Conversation Handler اصلی به اپلیکیشن
     application.add_handler(main_conv_handler)
     application.run_webhook(
         listen="0.0.0.0",
