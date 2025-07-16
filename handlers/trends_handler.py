@@ -1,32 +1,31 @@
 # handlers/trends_handler.py
 import logging
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import ContextTypes
+from telegram.ext import ContextTypes, ConversationHandler
 
 # تنظیمات لاگ
 logger = logging.getLogger(__name__)
 
 # =================================================================
 # >> شناسه‌های ویدیوهای خود را در اینجا وارد کنید <<
-# هر دسته می‌تواند شامل هر تعداد شناسه باشد
 TREND_VIDEOS = {
     "ویدیو های دیالوگی": [
-        "BAACAgQAAxkBAAEB2J9od_3-jAh95gHAK-a5oJTG9YWsDQACehsAApUowVNJqrNjQld6AjYE", 
-      
+        "FILE_ID_DIALOGUE_1", 
+        "FILE_ID_DIALOGUE_2"
     ],
     "ویدیو های مینیمال بدون چهره": [
-        "BAACAgQAAxkBAAEB2J9od_3-jAh95gHAK-a5oJTG9YWsDQACehsAApUowVNJqrNjQld6AjYE",
-      
+        "FILE_ID_MINIMAL_1",
+        "FILE_ID_MINIMAL_2"
     ],
     "ایده های فان": [
-        "BAACAgQAAxkBAAEB2J9od_3-jAh95gHAK-a5oJTG9YWsDQACehsAApUowVNJqrNjQld6AjYE",
-       
+        "FILE_ID_FUN_1",
+        "FILE_ID_FUN_2"
     ]
 }
 # =================================================================
 
 # تعریف مراحل مکالمه ترند
-ASKING_TREND_CATEGORY, SENDING_VIDEOS = range(7, 9)
+ASKING_TREND_CATEGORY = range(10, 11) # از یک رنج جدید استفاده میکنیم تا با قبلی تداخل نداشته باشد
 
 async def ask_trend_category(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """پس از کلیک روی "چی ترنده؟"، دسته‌بندی‌ها را نمایش می‌دهد."""
@@ -42,7 +41,7 @@ async def ask_trend_category(update: Update, context: ContextTypes.DEFAULT_TYPE)
     )
     return ASKING_TREND_CATEGORY
 
-async def send_videos_by_category(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def send_videos_by_category(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """ویدیوهای مربوط به دسته انتخاب شده را ارسال می‌کند."""
     category = update.message.text
     video_ids = TREND_VIDEOS.get(category)
@@ -60,7 +59,5 @@ async def send_videos_by_category(update: Update, context: ContextTypes.DEFAULT_
             logger.error(f"Could not send video with id {video_id}. Error: {e}")
             await update.message.reply_text(f"متاسفانه در ارسال یکی از ویدیوها مشکلی پیش آمد.")
 
-    # پس از اتمام کار، کاربر را به منوی اصلی برمیگردانیم
-    # برای این کار، باید تابع start از فایل اصلی را فراخوانی کنیم
-    # این کار در فایل اصلی handler انجام خواهد شد.
+    # برای بازگشت به منوی اصلی، مکالمه را پایان میدهیم
     return ConversationHandler.END
