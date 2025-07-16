@@ -63,5 +63,4 @@ async def send_videos_by_category(update: Update, context: ContextTypes.DEFAULT_
             await update.message.reply_text(f"متاسفانه در ارسال یکی از ویدیوها مشکلی پیش آمد.")
 
     # رفع نقص: پس از اتمام کار، کاربر را به منوی اصلی برمیگردانیم
-    await start(update, context)
-    return ConversationHandler.END
+   return await start(update, context)
