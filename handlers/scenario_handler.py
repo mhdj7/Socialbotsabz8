@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 # تعریف تمام مراحل مکالمه‌های مختلف
 (SELECTING_ACTION, BRAND, TONE, TOPIC, GOAL, STYLE, PLATFORM) = range(7)
-# مراحل جدید برای ترندها از فایل دیگر وارد شده و ادامه پیدا می‌کنند
 
 # --- توابع مکالمه ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -45,39 +44,31 @@ async def ask_brand(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     )
     return BRAND
 
+# ... (تمام توابع receive_ از اینجا تا generate_final_scenario بدون تغییر هستند) ...
 async def receive_brand(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data['brand'] = update.message.text
     keyboard = [["رسمی"], ["متوسط (نه رسمی، نه صمیمی)"], ["صمیمی"]]
-    await update.message.reply_text(
-        "مرحله ۲: لحن مورد نظر برند شما چیست؟",
-        reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True),
-    )
+    await update.message.reply_text("مرحله ۲: لحن مورد نظر برند شما چیست؟", reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True))
     return TONE
-
-# ... (تمام توابع receive_tone تا receive_style از راهنمای قبلی بدون تغییر اینجا قرار میگیرند) ...
 async def receive_tone(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data['tone'] = update.message.text
     await update.message.reply_text("مرحله ۳: موضوع اصلی این سناریو چیست؟", reply_markup=ReplyKeyboardRemove())
     return TOPIC
-
 async def receive_topic(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data['topic'] = update.message.text
     keyboard = [["افزایش آگاهی از برند", "فروش"], ["تعامل", "جذب لید"]]
     await update.message.reply_text("مرحله ۴: هدف اصلی شما چیست؟", reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True))
     return GOAL
-
 async def receive_goal(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data['goal'] = update.message.text
     keyboard = [["داستان‌سرایی (Storytelling)"], ["قلاب > داستان > پیشنهاد"], ["مشکل > راه‌حل (PAS)"], ["فرمول AIDA"]]
     await update.message.reply_text("مرحله ۵: کدام سبک سناریو را ترجیح می‌دهید؟", reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True))
     return STYLE
-
 async def receive_style(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data['style'] = update.message.text
     keyboard = [["ریلز", "پست اسلایدی"], ["پست تک عکس", "اینفوگرافی"], ["ویدیو بلند یوتیوبی"]]
     await update.message.reply_text("مرحله ۶ (آخر): این محتوا در چه قالبی منتشر خواهد شد؟", reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True))
     return PLATFORM
-
 
 async def generate_final_scenario(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data['platform'] = update.message.text
@@ -85,24 +76,11 @@ async def generate_final_scenario(update: Update, context: ContextTypes.DEFAULT_
     try:
         user_choices = context.user_data
         prompt = f"""
-        شما یک سناریونویس حرفه‌ای و خلاق در حوزه شبکه‌های اجتماعی هستید. با توجه به اطلاعات زیر، یک سناریوی کامل و جذاب بنویس:
-
-        - برند و محصول: {user_choices.get('brand')}
-        - موضوع محتوا: {user_choices.get('topic')}
-        - لحن برند: {user_choices.get('tone')}
-        - هدف از محتوا: {user_choices.get('goal')}
-        - سبک سناریو: {user_choices.get('style')}
-        - قالب انتشار: {user_choices.get('platform')}
-
-        لطفاً خروجی شامل این بخش‌ها باشد:
-        1.  **عنوان/قلاب جذاب (Hook):** چند ایده برای شروع جذاب.
-        2.  **بدنه سناریو:** توضیحات گام به گام بصری و متنی.
-        3.  **کپشن پیشنهادی:** یک کپشن کامل و بهینه شده.
-        4.  **فراخوان به اقدام (CTA):** یک جمله واضح برای تشویق کاربر.
-        5.  **هشتگ‌ها:** مجموعه‌ای از هشتگ‌های مرتبط.
-        6. حتما به سبک سناریو درخواست شده دقت کن و مثل یک متخصص ماهر نویسندگی که به جدید ترین و خلاقانه ترین مهارت های سناریو نویسی مسلط هست سناریو رو تولید کن.
-        از ایموجی ها برای زیبا تر و مرتب تر شدن متن استفاده کن
-        در نهایت هم بنویس "ارائه شده توسط تیم سوشال مدیا سبز"
+        شما یک سناریونویس حرفه‌ای هستید. با توجه به اطلاعات زیر، یک سناریوی کامل بنویس:
+        - برند: {user_choices.get('brand')} - موضوع: {user_choices.get('topic')}
+        - لحن: {user_choices.get('tone')} - هدف: {user_choices.get('goal')}
+        - سبک: {user_choices.get('style')} - قالب: {user_choices.get('platform')}
+        خروجی شامل: قلاب، بدنه سناریو، کپشن، CTA و هشتگ‌ها باشد.
         """
         genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
         model = genai.GenerativeModel("gemini-1.5-flash")
@@ -120,7 +98,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await start(update, context)
     return ConversationHandler.END
 
-# تعریف ConversationHandler اصلی که تمام مکالمات را مدیریت می‌کند
+# **نکته مهم:** نام متغیر زیر برای هماهنگی با فایل main.py صحیح است.
 main_conv_handler = ConversationHandler(
     entry_points=[CommandHandler("start", start)],
     states={
@@ -128,20 +106,17 @@ main_conv_handler = ConversationHandler(
             MessageHandler(filters.Regex("^📝 سناریو نویسی$"), ask_brand),
             MessageHandler(filters.Regex("^🔥 چی ترنده؟$"), ask_trend_category),
         ],
-        # States for Scenario Writing
         BRAND: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_brand)],
         TONE: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_tone)],
         TOPIC: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_topic)],
         GOAL: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_goal)],
         STYLE: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_style)],
         PLATFORM: [MessageHandler(filters.TEXT & ~filters.COMMAND, generate_final_scenario)],
-        # States for Trends
         ASKING_TREND_CATEGORY: [
             MessageHandler(filters.Regex("^(ویدیو های دیالوگی|ویدیو های مینیمال بدون چهره|ایده های فان)$"), send_videos_by_category),
             MessageHandler(filters.Regex("^ بازگشت به منوی اصلی 🔙$"), back_to_main_menu),
         ],
     },
     fallbacks=[CommandHandler("cancel", cancel)],
-    # برای اینکه کاربر اگر در وسط کار دکمه استارت را زد، به منوی اصلی برگردد
     per_message=False 
 )
