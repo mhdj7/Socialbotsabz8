@@ -1,9 +1,6 @@
 # main.py
 import os
-import asyncio
 import logging
-from flask import Flask, request, Response
-from telegram import Update
 from telegram.ext import Application
 
 # وارد کردن handler سناریو از فایل دیگر
@@ -15,28 +12,30 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# خواندن توکن تلگرام
+# خواندن توکن و تنظیمات از متغیرهای محیطی
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
+# پورت توسط Render به صورت خودکار فراهم می‌شود
+PORT = int(os.environ.get("PORT", "8443"))
+# آدرس سرویس شما در Render
+WEBHOOK_URL = os.environ.get("RENDER_EXTERNAL_URL")
 
-# --- تنظیمات وب‌سرور و بات ---
-# ساخت اپلیکیشن بات
-application = Application.builder().token(TELEGRAM_TOKEN).build()
 
-# اضافه کردن Conversation Handler سناریو به اپلیکیشن
-application.add_handler(scenario_conv_handler)
+def main() -> None:
+    """راه‌اندازی و اجرای بات."""
+    # ساخت اپلیکیشن بات
+    application = Application.builder().token(TELEGRAM_TOKEN).build()
 
-# فعال‌سازی اولیه بات
-asyncio.run(application.initialize())
+    # اضافه کردن Conversation Handler سناریو به اپلیکیشن
+    application.add_handler(scenario_conv_handler)
 
-# ساخت وب‌سرور Flask
-app = Flask(__name__)
+    # اجرای بات در حالت Webhook با استفاده از وب‌سرور داخلی
+    # این تابع به صورت خودکار همه چیز را مدیریت می‌کند
+    application.run_webhook(
+        listen="0.0.0.0",
+        port=PORT,
+        url_path=TELEGRAM_TOKEN,
+        webhook_url=f"{WEBHOOK_URL}/{TELEGRAM_TOKEN}"
+    )
 
-@app.route("/")
-def index():
-    return "Hello! Modular Bot is running."
-
-@app.route(f"/{TELEGRAM_TOKEN}", methods=["POST"])
-async def webhook():
-    update = Update.de_json(request.get_json(force=True), application.bot)
-    await application.process_update(update)
-    return Response("ok", status=200)
+if __name__ == "__main__":
+    main()
