@@ -10,12 +10,12 @@ logger = logging.getLogger(__name__)
 # >> شناسه‌های ویدیوهای خود را در اینجا وارد کنید <<
 TREND_VIDEOS = {
     "ویدیو های دیالوگی": [
-        "BAACAgQAAxkBAAEB2J9od_3-jAh95gHAK-a5oJTG9YWsDQACehsAApUowVNJqrNjQld6AjYE", 
-       
+        "FILE_ID_DIALOGUE_1", 
+        "FILE_ID_DIALOGUE_2"
     ],
     "ویدیو های مینیمال بدون چهره": [
-        "BAACAgQAAxkBAAEB2J9od_3-jAh95gHAK-a5oJTG9YWsDQACehsAApUowVNJqrNjQld6AjYE",
-        "BAACAgQAAxkBAAEB2J9od_3-jAh95gHAK-a5oJTG9YWsDQACehsAApUowVNJqrNjQld6AjYE"
+        "FILE_ID_MINIMAL_1",
+        "FILE_ID_MINIMAL_2"
     ],
     "ایده های فان": [
         "FILE_ID_FUN_1",
@@ -33,7 +33,7 @@ async def ask_trend_category(update: Update, context: ContextTypes.DEFAULT_TYPE)
         ["ویدیو های دیالوگی"],
         ["ویدیو های مینیمال بدون چهره"],
         ["ایده های فان"],
-        ["بازگشت به منوی اصلی 🔙"] # <-- رفع باگ: فاصله اضافی حذف شد
+        ["بازگشت به منوی اصلی 🔙"]
     ]
     await update.message.reply_text(
         "بسیار خب! کدام دسته از ایده‌های ترند را می‌خواهی ببینی؟",
@@ -62,5 +62,5 @@ async def send_videos_by_category(update: Update, context: ContextTypes.DEFAULT_
             logger.error(f"Could not send video with id {video_id}. Error: {e}")
             await update.message.reply_text(f"متاسفانه در ارسال یکی از ویدیوها مشکلی پیش آمد.")
 
-    # رفع نقص: پس از اتمام کار، کاربر را به منوی اصلی برمیگردانیم
-   return await start(update, context)
+    # رفع باگ: به جای پایان دادن به مکالمه، به حالت شروع بازمیگردیم
+    return await start(update, context)
