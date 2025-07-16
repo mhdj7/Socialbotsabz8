@@ -1,4 +1,2 @@
 python-telegram-bot[ext]==21.2
 google-generativeai
-Flask[async]
-gunicorn
